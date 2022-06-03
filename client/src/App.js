@@ -6,6 +6,7 @@ function App() {
   const [country, setCountry] = useState("");
   const [position, setPosition] = useState("");
   const [wage, setWage] = useState(0);
+  const [newWage, setNewWage] = useState(0);
 
   const [employeeList, setEmployeeList] = useState([]);
   const getEmployees = () => {
@@ -34,7 +35,40 @@ function App() {
       ]);
     });
   };
-  
+
+  const updateEmployeeWage = (id) => {
+    //รับไอดีมาเพื่อจะได้เช็คได้ถูกตัว
+    Axios.put("http://localhost:3001/update", { wage: newWage, id: id }).then(
+      (response) => {
+        setEmployeeList(
+          employeeList.map((val) => {
+            return val.id == id
+              ? {
+                  //เช็คว่า id ที่อัพเดธมาตรงกันกับเป้าหมายมั้ย
+                  id: val.id,
+                  name: val.name,
+                  country: val.country,
+                  age: val.age,
+                  position: val.position,
+                  wage: newWage,
+                }
+              : val; //ถ้า val.id != id ก็ return กลับค่าเดิมคือ val ที่ประกอบไปด้วย id, name, บลาๆ , wage เหมือนเดิม
+          })
+        );
+      }
+    );
+  };
+
+  const deleteEmployee = (id) => {
+    Axios.delete(`http://localhost:3001/delete/${id}`).then((response) => {
+      setEmployeeList(
+        employeeList.filter((val) => {
+          return val.id != id;
+        })
+      );
+    });
+  };
+
   return (
     <div className="app container">
       <h1>Employee Information</h1>
@@ -48,7 +82,8 @@ function App() {
               type="text"
               className="form-control"
               placeholder="Enter name"
-              onChange={(event) => {          //ใช้ onChange และเมื่อมี event
+              onChange={(event) => {
+                //ใช้ onChange และเมื่อมี event
                 setName(event.target.value); //จะเรียก setName โดยรับค่าจาก event.target.value คือรับค่า event ที่ค่าเป้าหมายตอนนี้ target.value
               }}
             />
@@ -126,6 +161,35 @@ function App() {
                 <p className="card-text">Country: {val.country}</p>
                 <p className="card-text">Position: {val.position}</p>
                 <p className="card-text">Wage: {val.wage}</p>
+                <div className="flex">
+                  <input
+                    className="form-control"
+                    style={{ width: "300px" }}
+                    type="number"
+                    placeholder="15000..."
+                    onChange={(event) => {
+                      setNewWage(event.target.value);
+                    }}
+                  />
+                  <button
+                    style={{ background: "#FFDFD3" }}
+                    className="btn btn-warining"
+                    onClick={() => {
+                      updateEmployeeWage(val.id);
+                    }} //เมื่อกดปุ่มให้ส่งค่า val.id ไปเช็คในฟังชัน update ก่อนว่า id ตรงกันมั้ยแล้วทำต่อ
+                  >
+                    Update
+                  </button>
+                  <button
+                    style={{ background: "#AFDFD3" }}
+                    className="btn btn-danger"
+                    onClick={() => {
+                      deleteEmployee(val.id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           );

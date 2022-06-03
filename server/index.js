@@ -44,6 +44,34 @@ app.post("/create", (req, res) => {
   );
 });
 
+app.put("/update", (req, res) => {
+  const id = req.body.id;
+  const wage = req.body.wage;
+  db.query(
+    "UPDATE employee SET wage = ? WHERE id = ?",
+    [wage, id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    }
+  );
+});
+
+app.delete("/delete/:id", (req, res) => {
+  const id = req.params.id; //ไปดูเพิ่ม params
+
+  db.query("DELETE FROM employee WHERE id = ?", id, (err, result) => {  //ลบไอดี ? ที่ตาราง employee , ให้ตัวแปร id มาจาก Axios, ใช้ callback รับ err,result มา เพื่อเชค err ถ้าไม่มีก็ทำต่อ
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+
 app.listen("3001", () => {
   console.log("Server is running on Port 3001");
 });
